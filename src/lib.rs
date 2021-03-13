@@ -106,8 +106,29 @@ pub fn float_to_fraction(dec_val: f64, precision: i32) -> Fraction {
 
 #[cfg(test)]
 mod tests {
+    pub use crate::conversions::decimal_to_radix_pv;
     #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
+    fn base_12_fraction() {
+        assert_eq!(decimal_to_radix_pv(0.5, 12), "0.6".to_string());
+    }
+
+    #[test]
+    fn base_16_fraction() {
+        assert_eq!(decimal_to_radix_pv(0.125, 16), "0.2".to_string());
+    }
+
+    #[test]
+    fn base_20_fraction() {
+        assert_eq!(decimal_to_radix_pv(26.75, 20), "16.f".to_string());
+    }
+
+    #[test]
+    fn base_36_fraction() {
+        assert_eq!(decimal_to_radix_pv(0.5, 36), "0.i".to_string());
+    }
+
+    #[test]
+    fn base_60_fraction() {
+        assert_eq!(decimal_to_radix_pv(62.5, 60), "01:02.30".to_string());
     }
 }
