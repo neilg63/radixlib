@@ -53,7 +53,6 @@ impl DecimalPart {
     let decimals = extract_decimals(dec_num);
     let multiple = calculate_radix_multiple_for_pv(base);
     let large = (decimals * multiple) as i32;
-    println!("large, base: {}, {}", large, base);
     DecimalPart {
       integer: dec_num.floor() as i32,
       decimals: decimals,
@@ -65,7 +64,7 @@ impl DecimalPart {
 
   pub fn num_zeroes(&self) -> u64 {
     let div = 1.0 / self.decimals;
-    div.log(self.base as f64).floor() as u64
+    div.log(self.base as f64).ceil() as u64 - 1
   }
 }
 
@@ -236,14 +235,13 @@ pub fn radix_frac_to_float(frac_str: String, radix: u32) -> f64 {
 
 pub fn calculate_radix_multiple_for_pv(base: u32) -> f64 {
   let start = if base < 20 {
-    12
+    14
   } else if base < 40 {
     base * 2 / 3
   } else {
     base * 4 / 7
   };
   let dec_len = start as usize - (base / 2) as usize;
-  println!("start, declen: {}, {}", start, dec_len);
   pow(base as f64, dec_len)
 }
 
