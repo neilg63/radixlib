@@ -150,6 +150,6 @@ mod tests {
 
     #[test]
     fn base_10_negative_rational_fraction() {
-        assert_eq!(float_to_fraction_parts(-0.75, 4096), (-3, 4, 0.0));
+        assert_eq!(float_to_fraction_parts(-1.75, 4096), (-7, 4, 0.0));
     }
 }
