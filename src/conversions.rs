@@ -46,6 +46,7 @@ struct DecimalPart {
   radval: String,
   base: u32,
   multiple: i32,
+  is_negative: bool,
 }
 
 impl DecimalPart {
@@ -63,6 +64,7 @@ impl DecimalPart {
       radval: decimal_to_radix_string(large, base),
       base: base,
       multiple: multiple as i32,
+      is_negative: dec_num < 0.0,
     }
   }
 
@@ -74,7 +76,7 @@ impl DecimalPart {
 
 impl ToString for DecimalPart {
   fn to_string(&self) -> String {
-    let mut owned_string = decimal_to_radix(self.integer, self.base);
+    let mut owned_string = decimal_to_radix(self.integer, self.base, self.is_negative);
     if self.decimals != 0.0_f64 {
       owned_string.push_str(".");
       let zero = if self.base > 36 { "00:" } else { "0" };
@@ -101,12 +103,12 @@ pub fn decimal_to_radix_pv(num: f64, radix: u32) -> String {
   DecimalPart::new(num, radix).to_string()
 }
 
-pub fn decimal_to_radix(num: i32, radix: u32) -> String {
-  integer_to_radix_string(num, radix as u8)
+pub fn decimal_to_radix(num: i32, radix: u32, is_negative: bool) -> String {
+  integer_to_radix_string(num, radix as u8, is_negative)
 }
 
 pub fn decimal_to_radix_string(large: i32, base: u32) -> String {
-  let mut str = decimal_to_radix(large, base);
+  let mut str = decimal_to_radix(large, base, large < 0);
   if base <= 36 {
     str = str.trim_end_matches('0').to_string();
   } else {
@@ -126,16 +128,15 @@ pub fn decimal_to_radix_string(large: i32, base: u32) -> String {
   str
 }
 
-pub fn integer_to_radix_string(num: i32, radix: u8) -> String {
+pub fn integer_to_radix_string(num: i32, radix: u8, is_negative: bool) -> String {
   let bg = build_bigint(num);
-  let (sign, vec_nums) = bg.to_radix_be(radix as u32);
+  let (_, vec_nums) = bg.to_radix_be(radix as u32);
   let mut num_chars: Vec<String> = vec_nums
     .iter()
     .map(|c| integer_to_radix_char(*c, radix))
     .collect();
-  match sign {
-    Sign::Minus => num_chars.insert(0, "-".to_string()),
-    _ => (),
+  if is_negative {
+    num_chars.insert(0, "-".to_string());
   }
   let separator: &str = if radix > 36 { ":" } else { "" };
   num_chars.join(separator)
@@ -251,17 +252,18 @@ pub fn calculate_radix_multiple_for_pv(base: u32) -> f64 {
 pub fn fraction_to_units(numer: i32, denom: i32, radix: u32) -> String {
   let units = numer / denom;
   let mut out: String = "".to_string();
+  let is_negative = numer < 0;
   if units > 0 {
-    out.push_str(decimal_to_radix(units, radix).as_str());
+    out.push_str(decimal_to_radix(units, radix, is_negative).as_str());
   }
   let remainder = numer % denom;
   if remainder > 0 {
     if units > 0 {
       out.push_str(" ");
     }
-    out.push_str(decimal_to_radix(remainder, radix).as_str());
+    out.push_str(decimal_to_radix(remainder, radix, is_negative).as_str());
     out.push_str("/");
-    out.push_str(decimal_to_radix(denom, radix).as_str());
+    out.push_str(decimal_to_radix(denom, radix, false).as_str());
   }
   out
 }

@@ -144,6 +144,6 @@ mod tests {
     }
     #[test]
     fn base_12_negative() {
-        assert_eq!(decimal_to_radix_pv(-7.5, 12), "-7.6".to_string());
+        assert_eq!(decimal_to_radix_pv(-0.75, 12), "-0.9".to_string());
     }
 }
