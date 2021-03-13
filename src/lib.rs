@@ -142,4 +142,8 @@ mod tests {
     fn base_60_fraction() {
         assert_eq!(decimal_to_radix_pv(62.5, 60), "01:02.30".to_string());
     }
+    #[test]
+    fn base_12_negative() {
+        assert_eq!(decimal_to_radix_pv(-7.5, 12), "-7.6".to_string());
+    }
 }

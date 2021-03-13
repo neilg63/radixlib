@@ -54,7 +54,11 @@ impl DecimalPart {
     let multiple = calculate_radix_multiple_for_pv(base);
     let large = (decimals * multiple) as i32;
     DecimalPart {
-      integer: dec_num.floor() as i32,
+      integer: if dec_num >= 0.0 {
+        dec_num.floor() as i32
+      } else {
+        dec_num.ceil() as i32
+      },
       decimals: decimals,
       radval: decimal_to_radix_string(large, base),
       base: base,
@@ -71,7 +75,7 @@ impl DecimalPart {
 impl ToString for DecimalPart {
   fn to_string(&self) -> String {
     let mut owned_string = decimal_to_radix(self.integer, self.base);
-    if self.decimals > 0.0_f64 {
+    if self.decimals != 0.0_f64 {
       owned_string.push_str(".");
       let zero = if self.base > 36 { "00:" } else { "0" };
       owned_string.push_str(zero.repeat(self.num_zeroes() as usize).as_str());
@@ -90,7 +94,7 @@ pub fn extract_decimals(dec_num: f64) -> f64 {
     let numer = bigrat.numer().to_i32().unwrap();
     remainder = numer as f64 / denom as f64;
   }
-  (remainder * dec_multiplier).ceil() / dec_multiplier
+  ((remainder * dec_multiplier).ceil() / dec_multiplier).abs()
 }
 
 pub fn decimal_to_radix_pv(num: f64, radix: u32) -> String {
@@ -125,7 +129,6 @@ pub fn decimal_to_radix_string(large: i32, base: u32) -> String {
 pub fn integer_to_radix_string(num: i32, radix: u8) -> String {
   let bg = build_bigint(num);
   let (sign, vec_nums) = bg.to_radix_be(radix as u32);
-
   let mut num_chars: Vec<String> = vec_nums
     .iter()
     .map(|c| integer_to_radix_char(*c, radix))
