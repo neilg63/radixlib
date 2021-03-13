@@ -124,7 +124,7 @@ mod tests {
 
     #[test]
     fn base_36_fraction() {
-        assert_eq!(decimal_to_radix_pv(0.5, 36), "0.i".to_string());
+        assert_eq!(decimal_to_radix_pv(67.333333333333, 36), "1v.c".to_string());
     }
 
     #[test]
