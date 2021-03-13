@@ -6,8 +6,8 @@ use num::FromPrimitive;
 #[derive(Debug)]
 pub struct RationalNumber {
 	display: String,
-	numer: i64,
-	denom: i64,
+	numer: i32,
+	denom: i32,
 	value: f64,
 	precision: i32,
 	difference: f64,
@@ -15,8 +15,8 @@ pub struct RationalNumber {
 
 impl RationalNumber {
 	pub fn new(
-		numer: i64,
-		denom: i64,
+		numer: i32,
+		denom: i32,
 		value: f64,
 		precision: i32,
 		difference: f64,
@@ -31,7 +31,7 @@ impl RationalNumber {
 		}
 	}
 
-	pub fn new_from_frac(numer: i64, denom: i64) -> RationalNumber {
+	pub fn new_from_frac(numer: i32, denom: i32) -> RationalNumber {
 		let num: f64 = numer as f64 / denom as f64;
 		RationalNumber {
 			display: fraction_to_units(numer, denom),
@@ -45,8 +45,8 @@ impl RationalNumber {
 
 	pub fn new_from_big_rational(big_rat: BigRational) -> RationalNumber {
 		RationalNumber::new_from_frac(
-			big_rat.numer().to_i64().unwrap(),
-			big_rat.denom().to_i64().unwrap(),
+			big_rat.numer().to_i32().unwrap(),
+			big_rat.denom().to_i32().unwrap(),
 		)
 	}
 }
@@ -79,26 +79,26 @@ impl RationalNumberSet {
 
 pub fn fraction_string_to_big_rational(number: String) -> BigRational {
 	let parts: Vec<&str> = number.as_str().clone().split("/").collect();
-	let mut numer: i64 = 0;
-	let mut denom: i64 = 0;
+	let mut numer: i32 = 0;
+	let mut denom: i32 = 0;
 	if parts.len() == 2 {
-		numer = parts.get(0).unwrap().parse::<i64>().ok().unwrap();
-		denom = parts.get(1).unwrap().parse::<i64>().ok().unwrap();
+		numer = parts.get(0).unwrap().parse::<i32>().ok().unwrap();
+		denom = parts.get(1).unwrap().parse::<i32>().ok().unwrap();
 	}
 	build_big_rational(numer, denom)
 }
 
 pub fn float_to_fraction(num: f64, precision: i32) -> (BigRational, f64) {
-	let mut numer: i64 = num as i64;
-	let mut demon: i64 = 1;
+	let mut numer: i32 = num as i32;
+	let mut demon: i32 = 1;
 	let max = precision + 1;
 	let max_dec: f64 = 1.0_f64 / max as f64;
 	let mut difference: f64 = 0.0;
 
 	for i in 1..max {
 		if let Some((n, diff)) = is_divisable(num, i, max_dec) {
-			numer = (n as f64 * num).round() as i64;
-			demon = n as i64;
+			numer = (n as f64 * num).round() as i32;
+			demon = n as i32;
 			difference = diff;
 			break;
 		}
@@ -117,7 +117,7 @@ pub fn is_divisable(num: f64, i: i32, tolerance: f64) -> Option<(i32, f64)> {
 	}
 }
 
-pub fn fraction_to_units(numer: i64, denom: i64) -> String {
+pub fn fraction_to_units(numer: i32, denom: i32) -> String {
 	let units = numer / denom;
 	let mut out: String = "".to_string();
 	if units > 0 {
@@ -135,17 +135,17 @@ pub fn fraction_to_units(numer: i64, denom: i64) -> String {
 	out
 }
 
-pub fn float_to_fraction_parts(dec_val: f64, precision: i32) -> (i64, i64, f64) {
+pub fn float_to_fraction_parts(dec_val: f64, precision: i32) -> (i32, i32, f64) {
 	let (bigrat, diff) = float_to_fraction(dec_val, precision);
-	let numer = bigrat.numer().to_i64().unwrap();
-	let denom = bigrat.denom().to_i64().unwrap();
+	let numer = bigrat.numer().to_i32().unwrap();
+	let denom = bigrat.denom().to_i32().unwrap();
 	(numer, denom, diff)
 }
 
-pub fn build_big_rational(numer: i64, denom: i64) -> BigRational {
+pub fn build_big_rational(numer: i32, denom: i32) -> BigRational {
 	BigRational::new(build_bigint(numer), build_bigint(denom)).reduced()
 }
 
-pub fn build_bigint(integer: i64) -> BigInt {
-	BigInt::from_i64(integer).unwrap()
+pub fn build_bigint(integer: i32) -> BigInt {
+	BigInt::from_i32(integer).unwrap()
 }

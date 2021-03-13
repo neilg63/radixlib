@@ -10,13 +10,13 @@ use std::char;
 pub struct RadixValue {
   value: String,
   dec_val: f64,
-  base: u64,
+  base: u32,
   mode: String,
   frac: String,
 }
 
 impl RadixValue {
-  pub fn new(value: String, dec_val: f64, base: u64, mode: String) -> RadixValue {
+  pub fn new(value: String, dec_val: f64, base: u32, mode: String) -> RadixValue {
     let mode_str = match mode.as_str() {
       "r" => "to",
       _ => "from",
@@ -25,8 +25,8 @@ impl RadixValue {
     let (bigrat, _diff) = float_to_fraction(dec_val.clone(), 256);
 
     let frac = fraction_to_units(
-      bigrat.numer().to_i64().unwrap(),
-      bigrat.denom().to_i64().unwrap(),
+      bigrat.numer().to_i32().unwrap(),
+      bigrat.denom().to_i32().unwrap(),
       base,
     );
     RadixValue {
@@ -41,26 +41,26 @@ impl RadixValue {
 
 #[derive(Debug, Clone)]
 struct DecimalPart {
-  integer: i64,
+  integer: i32,
   decimals: f64,
   radval: String,
-  base: u64,
-  multiple: i64,
+  base: u32,
+  multiple: i32,
 }
 
 impl DecimalPart {
-  pub fn new(dec_num: f64, base: u64) -> DecimalPart {
+  pub fn new(dec_num: f64, base: u32) -> DecimalPart {
     let decimals = extract_decimals(dec_num);
 
     let multiple = calculate_radix_multiple_for_pv(base);
-    let large = (decimals * multiple) as i64;
+    let large = (decimals * multiple) as i32;
 
     DecimalPart {
-      integer: dec_num.floor() as i64,
+      integer: dec_num.floor() as i32,
       decimals: decimals,
       radval: decimal_to_radix_string(large, base),
       base: base,
-      multiple: multiple as i64,
+      multiple: multiple as i32,
     }
   }
 
@@ -87,24 +87,24 @@ pub fn extract_decimals(dec_num: f64) -> f64 {
   let dec_multiplier = pow(10.0_f64, 15);
   let mut remainder = dec_num % (1.0 as f64);
   let (bigrat, diff) = float_to_fraction(remainder, 512);
-  let denom = bigrat.denom().to_i64().unwrap();
+  let denom = bigrat.denom().to_i32().unwrap();
   if denom < 256 && denom > 2 && diff < 1_f64 / 512_f64 {
-    let numer = bigrat.numer().to_i64().unwrap();
+    let numer = bigrat.numer().to_i32().unwrap();
     remainder = numer as f64 / denom as f64;
   }
   (remainder * dec_multiplier).ceil() / dec_multiplier
 }
 
-pub fn decimal_to_radix_pv(num: f64, radix: u64) -> String {
+pub fn decimal_to_radix_pv(num: f64, radix: u32) -> String {
   DecimalPart::new(num, radix).to_string()
 }
 
-pub fn decimal_to_radix(num: i64, radix: u64) -> String {
+pub fn decimal_to_radix(num: i32, radix: u32) -> String {
   integer_to_radix_string(num, radix as u8)
 }
 
-pub fn decimal_to_radix_string(large: i64, base: u64) -> String {
-  let mut str = decimal_to_radix(large, base as u64);
+pub fn decimal_to_radix_string(large: i32, base: u32) -> String {
+  let mut str = decimal_to_radix(large, base);
   if base <= 36 {
     str = str.trim_end_matches('0').to_string();
   } else {
@@ -124,7 +124,7 @@ pub fn decimal_to_radix_string(large: i64, base: u64) -> String {
   str
 }
 
-pub fn integer_to_radix_string(num: i64, radix: u8) -> String {
+pub fn integer_to_radix_string(num: i32, radix: u8) -> String {
   let bg = build_bigint(num);
   let (sign, vec_nums) = bg.to_radix_be(radix as u32);
 
@@ -166,9 +166,9 @@ pub fn integer_to_radix_char(num: u8, radix: u8) -> String {
   str_val
 }
 
-pub fn radix_to_decimal(num_string: String, radix: u32) -> i64 {
+pub fn radix_to_decimal(num_string: String, radix: u32) -> i32 {
   if radix <= 36 {
-    match i64::from_str_radix(num_string.as_str(), radix) {
+    match i32::from_str_radix(num_string.as_str(), radix) {
       Ok(v) => v,
       _ => 0,
     }
@@ -177,7 +177,7 @@ pub fn radix_to_decimal(num_string: String, radix: u32) -> i64 {
   }
 }
 
-pub fn radix_be_to_decimal(num_string: String, radix: u32) -> i64 {
+pub fn radix_be_to_decimal(num_string: String, radix: u32) -> i32 {
   let mut str_val = num_string.clone();
   let mut str_sign = "+".to_string();
   if num_string.starts_with("-") {
@@ -194,7 +194,7 @@ pub fn radix_be_to_decimal(num_string: String, radix: u32) -> i64 {
     .into_iter()
     .collect();
   if let Some(int_val) = BigInt::from_radix_be(sign, &nums, radix) {
-    int_val.to_i64().unwrap()
+    int_val.to_i32().unwrap()
   } else {
     0
   }
@@ -235,13 +235,13 @@ pub fn radix_frac_to_float(frac_str: String, radix: u32) -> f64 {
   out
 }
 
-pub fn calculate_radix_multiple_for_pv(base: u64) -> f64 {
+pub fn calculate_radix_multiple_for_pv(base: u32) -> f64 {
   let start = if base < 40 { 20 } else { base * 2 / 3 };
   let dec_len = start as usize - (base / 2) as usize;
   pow(base as f64, dec_len)
 }
 
-pub fn fraction_to_units(numer: i64, denom: i64, radix: u64) -> String {
+pub fn fraction_to_units(numer: i32, denom: i32, radix: u32) -> String {
   let units = numer / denom;
   let mut out: String = "".to_string();
   if units > 0 {
@@ -259,7 +259,7 @@ pub fn fraction_to_units(numer: i64, denom: i64, radix: u64) -> String {
   out
 }
 
-pub fn convert_radix_fraction_to_radix(num_str: String, radix: u64) -> (f64, String) {
+pub fn convert_radix_fraction_to_radix(num_str: String, radix: u32) -> (f64, String) {
   let parts = num_str.split("/");
   let mut dec_val: f64 = 0.0;
   let mut radix_val: String = "".to_string();

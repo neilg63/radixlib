@@ -34,18 +34,18 @@ impl NumString {
     }
 }
 
-const MAX32: i64 = 2147483648;
+const MAX32: i32 = 2147483647;
 
 #[wasm_bindgen]
 pub struct Fraction {
-    numer: i64,
-    denom: i64,
+    numer: i32,
+    denom: i32,
     diff: f64,
 }
 
 #[wasm_bindgen]
 impl Fraction {
-    pub fn new(numer: i64, denom: i64, diff: f64) -> Fraction {
+    pub fn new(numer: i32, denom: i32, diff: f64) -> Fraction {
         Fraction {
             numer: numer,
             denom: denom,
@@ -76,7 +76,7 @@ impl Fraction {
 
 #[wasm_bindgen]
 pub fn decimal_to_radix(large: f64, base: u32) -> String {
-    decimal_to_radix_pv(large, base as u64)
+    decimal_to_radix_pv(large, base)
 }
 
 #[wasm_bindgen]
@@ -86,12 +86,12 @@ pub fn radix_to_decimal(rad_val: String, base: u32) -> f64 {
 
 #[wasm_bindgen]
 pub fn fraction_to_unit(numer: i32, denom: i32, base: u32) -> String {
-    fraction_to_units(numer as i64, denom as i64, base as u64)
+    fraction_to_units(numer, denom, base)
 }
 
 #[wasm_bindgen]
 pub fn radix_fraction_to_radix(num_string: String, base: u32) -> NumString {
-    let (num, text) = convert_radix_fraction_to_radix(num_string, base as u64);
+    let (num, text) = convert_radix_fraction_to_radix(num_string, base);
     NumString {
         num: num,
         text: text,
