@@ -89,19 +89,24 @@ pub fn fraction_string_to_big_rational(number: String) -> BigRational {
 }
 
 pub fn float_to_fraction(num: f64, precision: i32) -> (BigRational, f64) {
-	let mut numer: i32 = num as i32;
+	let is_negative = num < 0.0;
+	let abs_num = num.abs();
+	let mut numer: i32 = abs_num as i32;
 	let mut demon: i32 = 1;
 	let max = precision + 1;
 	let max_dec: f64 = 1.0_f64 / max as f64;
 	let mut difference: f64 = 0.0;
 
 	for i in 1..max {
-		if let Some((n, diff)) = is_divisable(num, i, max_dec) {
-			numer = (n as f64 * num).round() as i32;
+		if let Some((n, diff)) = is_divisable(abs_num, i, max_dec) {
+			numer = (n as f64 * abs_num).round() as i32;
 			demon = n as i32;
 			difference = diff;
 			break;
 		}
+	}
+	if is_negative {
+		numer = 0 - numer;
 	}
 	(build_big_rational(numer, demon), difference)
 }
