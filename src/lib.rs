@@ -125,6 +125,15 @@ mod tests {
     }
 
     #[test]
+    fn base_12_float_fraction() {
+        // test approximation
+        assert_eq!(
+            decimal_to_radix_pv(0.33333333333 as f64, 12),
+            "0.4".to_string()
+        );
+    }
+
+    #[test]
     fn base_16_fraction() {
         assert_eq!(decimal_to_radix_pv(0.125, 16), "0.2".to_string());
     }
