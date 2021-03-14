@@ -81,10 +81,39 @@ impl ToString for DecimalPart {
       owned_string.push_str(".");
       let zero = if self.base > 36 { "00:" } else { "0" };
       owned_string.push_str(zero.repeat(self.num_zeroes() as usize).as_str());
-      owned_string.push_str(self.radval.clone().as_str());
+      let clean_place_value_frac = clean_place_value_string(self.radval.clone());
+      owned_string.push_str(clean_place_value_frac.as_str());
     }
     owned_string
   }
+}
+
+/*
+Complex alternative to a regular expression. Avoids importing the regex crate
+for a single clean up operation
+ */
+pub fn clean_place_value_string(frac_part: String) -> String {
+  let mut ret = frac_part;
+  if ret.len() > 12 {
+    let mut chars: Vec<char> = ret.chars().collect();
+    if chars.iter().filter(|&c| *c == '0').count() > 9 {
+      let last_index = chars.iter().count() - 1;
+      if chars.get(last_index) == Some(&'1') {
+        let mut index_offset = last_index - 1;
+        let mut num_removed = 0;
+        while chars.get(index_offset) == Some(&'0') {
+          chars.remove(index_offset + 1);
+          index_offset -= 1;
+          num_removed += 1;
+        }
+        if num_removed > 8 {
+          chars.remove(index_offset + 1);
+          ret = chars.into_iter().collect();
+        }
+      }
+    }
+  }
+  ret
 }
 
 pub fn extract_decimals(dec_num: f64) -> f64 {
