@@ -238,13 +238,7 @@ pub fn radix_frac_to_float(frac_str: String, radix: u32) -> f64 {
 }
 
 pub fn calculate_radix_multiple_for_pv(base: u32) -> f64 {
-  let start = if base < 25 {
-    20
-  } else if base < 40 {
-    base * 2 / 3
-  } else {
-    base * 4 / 7
-  };
+  let start = if base < 40 { 22 } else { base * 2 / 3 };
   let dec_len = start as usize - (base / 2) as usize;
   pow(base as f64, dec_len)
 }
