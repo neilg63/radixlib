@@ -51,32 +51,6 @@ impl RationalNumber {
 	}
 }
 
-#[derive(Debug)]
-pub struct RationalNumberSet {
-	ratnum: RationalNumber,
-	code: u16,
-	msg: String,
-}
-
-impl RationalNumberSet {
-	pub fn new(ratnum: RationalNumber) -> RationalNumberSet {
-		RationalNumberSet {
-			ratnum: ratnum,
-			code: 200,
-			msg: "OK".to_string(),
-		}
-	}
-
-	pub fn new_from_big_rational(bigrat: BigRational) -> RationalNumberSet {
-		let ratnum = RationalNumber::new_from_big_rational(bigrat);
-		RationalNumberSet {
-			ratnum: ratnum,
-			code: 200,
-			msg: "OK".to_string(),
-		}
-	}
-}
-
 pub fn fraction_string_to_big_rational(number: String) -> BigRational {
 	let parts: Vec<&str> = number.as_str().clone().split("/").collect();
 	let mut numer: i32 = 0;
