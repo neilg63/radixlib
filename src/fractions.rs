@@ -154,3 +154,7 @@ pub fn build_big_rational(numer: i32, denom: i32) -> BigRational {
 pub fn build_bigint(integer: i32) -> BigInt {
 	BigInt::from_i32(integer).unwrap()
 }
+
+pub fn build_bigint_128(integer: i128) -> BigInt {
+	BigInt::from_i128(integer).unwrap()
+}
