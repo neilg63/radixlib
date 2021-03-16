@@ -158,6 +158,14 @@ mod tests {
     }
 
     #[test]
+    fn base_36_float_fraction() {
+        assert_eq!(
+            decimal_to_radix_pv(4.0 / 23.0, 36).starts_with("0.69e34p"),
+            true
+        );
+    }
+
+    #[test]
     fn base_60_fraction() {
         assert_eq!(decimal_to_radix_pv(62.5, 60), "01:02.30".to_string());
     }
