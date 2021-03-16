@@ -4,6 +4,7 @@ use num::bigint::BigInt;
 use num::bigint::Sign;
 use num::cast::ToPrimitive;
 use num::pow;
+
 use std::char;
 
 #[derive(Debug)]
@@ -88,6 +89,18 @@ impl ToString for DecimalPart {
   }
 }
 
+pub fn extract_decimals(dec_num: f64) -> f64 {
+  let dec_multiplier = pow(10.0_f64, 15);
+  let mut remainder = dec_num % (1.0 as f64);
+  let (bigrat, diff) = float_to_fraction(remainder, 512);
+  let denom = bigrat.denom().to_i32().unwrap();
+  if denom < 256 && denom > 2 && diff < 1_f64 / 512_f64 {
+    let numer = bigrat.numer().to_i32().unwrap();
+    remainder = numer as f64 / denom as f64;
+  }
+  ((remainder * dec_multiplier).ceil() / dec_multiplier).abs()
+}
+
 /*
 Complex alternative to a regular expression. Avoids importing the regex crate
 for a single clean up operation
@@ -114,18 +127,6 @@ pub fn clean_place_value_string(frac_part: String) -> String {
     }
   }
   ret
-}
-
-pub fn extract_decimals(dec_num: f64) -> f64 {
-  let dec_multiplier = pow(10.0_f64, 15);
-  let mut remainder = dec_num % (1.0 as f64);
-  let (bigrat, diff) = float_to_fraction(remainder, 512);
-  let denom = bigrat.denom().to_i32().unwrap();
-  if denom < 256 && denom > 2 && diff < 1_f64 / 512_f64 {
-    let numer = bigrat.numer().to_i32().unwrap();
-    remainder = numer as f64 / denom as f64;
-  }
-  ((remainder * dec_multiplier).ceil() / dec_multiplier).abs()
 }
 
 pub fn decimal_to_radix_pv(num: f64, radix: u32) -> String {
@@ -267,8 +268,11 @@ pub fn radix_frac_to_float(frac_str: String, radix: u32) -> f64 {
 }
 
 pub fn calculate_radix_multiple_for_pv(base: u32) -> f64 {
-  let start = if base < 30 { 20 } else { base * 2 / 3 };
-  let dec_len = start as usize - (base / 2) as usize;
+  let dec_len = if base < 30 {
+    20 as usize - (base / 2) as usize
+  } else {
+    (720.0 / base as f64).powf(0.75) as usize
+  };
   pow(base as f64, dec_len)
 }
 
