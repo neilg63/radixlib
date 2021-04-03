@@ -7,7 +7,7 @@ use num::pow;
 
 use std::char;
 
-#[derive(Debug)]
+/* #[derive(Debug)]
 pub struct RadixValue {
   value: String,
   dec_val: f64,
@@ -38,7 +38,7 @@ impl RadixValue {
       frac: frac,
     }
   }
-}
+} */
 
 #[derive(Debug, Clone)]
 struct DecimalPart {

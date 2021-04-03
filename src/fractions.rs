@@ -2,7 +2,9 @@ use num::bigint::BigInt;
 use num::cast::ToPrimitive;
 use num::rational::BigRational;
 use num::FromPrimitive;
+use wasm_bindgen::prelude::*;
 
+#[wasm_bindgen]
 #[derive(Debug)]
 pub struct RationalNumber {
 	display: String,
@@ -51,7 +53,13 @@ impl RationalNumber {
 	}
 }
 
-pub fn fraction_string_to_big_rational(number: String) -> BigRational {
+impl PartialEq for RationalNumber {
+	fn eq(&self, other: &RationalNumber) -> bool {
+		self.denom == other.denom && self.numer == other.numer
+	}
+}
+
+/* pub fn fraction_string_to_big_rational(number: String) -> BigRational {
 	let parts: Vec<&str> = number.as_str().clone().split("/").collect();
 	let mut numer: i32 = 0;
 	let mut denom: i32 = 0;
@@ -60,7 +68,7 @@ pub fn fraction_string_to_big_rational(number: String) -> BigRational {
 		denom = parts.get(1).unwrap().parse::<i32>().ok().unwrap();
 	}
 	build_big_rational(numer, denom)
-}
+} */
 
 pub fn float_to_fraction(num: f64, precision: i32) -> (BigRational, f64) {
 	let is_negative = num < 0.0;
